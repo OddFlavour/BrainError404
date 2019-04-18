@@ -2,28 +2,26 @@ package codeGoogle.MagicalMarvelousTour;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 //https://code.google.com/codejam/contest/3024486/dashboard#s=p0
 public class Main {
 
 	/*
-	 * Idea was to have three sums, left, mid, right. Mid would be Arnah's initial range.
-	 * Now knowing that Arnah's opponent will pick the best choice between the three, we must guarantee
-	 * that they don't pick mid (this is because Arnah gets to take a series of consecutive elements, so if
-	 * mid is not taken then Arnah can take either left-mid, or mid-right)
-	 * 
-	 * The above is a false understanding because Arnah just takes whatever transistors is left. So not only
-	 * limited to consecutive elements.
+	 * Needs to be sped up
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		BufferedReader br = new BufferedReader(new FileReader("src/codeGoogle/MagicalMarvelousTour/A-small-practice.in"));
+		String path = "src/codeGoogle/MagicalMarvelousTour/";
+		BufferedReader br = new BufferedReader(new FileReader(path + "A-large-practice.in"));
+		FileWriter fw = new FileWriter(path + "solution.txt");
 		
 		int T = Integer.parseInt(br.readLine());
 		
-		for (int i = 1; i <= T; i++) {
+		for (int init = 1; init <= T; init++) {
 			String[] lineInSplit = br.readLine().split(" ");
 			
 			int N = Integer.parseInt(lineInSplit[0]);
@@ -37,35 +35,38 @@ public class Main {
 				transistors[j] = ((j * p + q) % r + s);
 			}
 			
-			int[] sums = new int[3];
-			final int LEFT = 0, MID = 1, RIGHT = 2;
-			int pLeft = 0;
-			int pRight = N - 1;
-			sums[MID] = IntStream.of(transistors).sum();
+			// start of code
 			
-			while (
-					!(pLeft == -1 && pRight == -1) && (pLeft <= pRight)
-					) {
-				if (sums[LEFT] < sums[MID]) {
-					sums[LEFT] += transistors[pLeft];
-					sums[MID] -= transistors[pLeft];
-					pLeft++;
-				} else {
-					pLeft = -1;
-				}
-				
-				if (sums[RIGHT] < sums[MID]) {
-					sums[RIGHT] += transistors[pRight];
-					sums[MID] -= transistors[pRight];
-					pRight--;
-				} else {
-					pRight = -1;
+			int[] partialSums = new int[N];
+			partialSums[0] = transistors[0];
+			for (int i=1; i<N; i++) {
+				partialSums[i] = partialSums[i-1] + transistors[i];
+			}
+		
+			// have two pointers
+			int maxTransistors = 0;
+			// go through all possible ranges
+			for (int p1=0; p1<N; p1++) {
+				for (int p2=p1; p2<N-1; p2++) {
+					int sum1 = partialSums[p1] - transistors[p1];
+					int sum2;
+					try {
+						sum2 = partialSums[p2] - partialSums[p1-1];
+					} catch (Exception e) {
+						sum2 = partialSums[p2];
+					}
+					int sum3 = partialSums[N-1] - partialSums[p2];
+					
+					int total = sum1 + sum2 + sum3 - Math.max(Math.max(sum1, sum2), sum3);
+					maxTransistors = Math.max(total, maxTransistors);
 				}
 			}
-			
-			int arnahTransistors = sums[LEFT] > sums[RIGHT] ? sums[MID] + sums[RIGHT] : sums[MID] + sums[LEFT];
-			
-			System.out.printf("Case #%d: %.10f\n", i, (double) arnahTransistors / IntStream.of(transistors).sum());
+			//System.out.println(Arrays.toString(transistors));
+			double answer = (double) maxTransistors / partialSums[N-1];
+			fw.append(String.format("Case #%d: %.10f\n", init, answer));
 		}
+		
+		fw.close();
+		br.close();
 	}
 }
