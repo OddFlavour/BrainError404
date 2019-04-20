@@ -16,7 +16,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		
 		String path = "src/codeGoogle/MagicalMarvelousTour/";
-		BufferedReader br = new BufferedReader(new FileReader(path + "A-large-practice.in"));
+		BufferedReader br = new BufferedReader(new FileReader(path + "A-small-practice.in"));
 		FileWriter fw = new FileWriter(path + "solution.txt");
 		
 		int T = Integer.parseInt(br.readLine());
@@ -30,40 +30,47 @@ public class Main {
 			int r = Integer.parseInt(lineInSplit[3]);
 			int s = Integer.parseInt(lineInSplit[4]);
 			
-			int[] transistors = new int[N];
+			long[] transistors1 = new long[N];
 			for (int j = 0; j < N; j++) {
-				transistors[j] = ((j * p + q) % r + s);
+				transistors1[j] = ((j * p + q) % r + s);
 			}
 			
+			N = 4;
+			long[] transistors = {1, 2, 2, 1};
 			// start of code
 			
-			int[] partialSums = new int[N];
-			partialSums[0] = transistors[0];
-			for (int i=1; i<N; i++) {
-				partialSums[i] = partialSums[i-1] + transistors[i];
+			long[] partialSums = new long[N+1];
+			partialSums[0] = 0;
+			for (int i=1; i<=N; i++) {
+				partialSums[i] = partialSums[i-1] + transistors[i-1];
 			}
 		
-			// have two pointers
-			int maxTransistors = 0;
-			// go through all possible ranges
-			for (int p1=0; p1<N; p1++) {
-				for (int p2=p1; p2<N-1; p2++) {
-					int sum1 = partialSums[p1] - transistors[p1];
-					int sum2;
-					try {
-						sum2 = partialSums[p2] - partialSums[p1-1];
-					} catch (Exception e) {
-						sum2 = partialSums[p2];
-					}
-					int sum3 = partialSums[N-1] - partialSums[p2];
+			long best = 0;
+			for (int p1=0; p1<=N; p1++) {
+				int left = p1, right = N;
+				int pointer = 0;
+				long midSum = partialSums[pointer] - partialSums[p1];
+				long rightSum = partialSums[N] - partialSums[pointer];
+				while (left < right) {
+					pointer = (left + right) / 2;
+					midSum = partialSums[pointer] - partialSums[p1];
+					rightSum = partialSums[N] - partialSums[pointer];
 					
-					int total = sum1 + sum2 + sum3 - Math.max(Math.max(sum1, sum2), sum3);
-					maxTransistors = Math.max(total, maxTransistors);
+					if (midSum < rightSum) {
+						right = pointer - 1;
+					} else if (midSum > rightSum) {
+						left = pointer + 1;
+					} else {
+						break;
+					}
+					//System.out.printf("%d, %d, %d, %d\n", left, right, midSum, rightSum);
 				}
+				
+				best = Math.max(best, partialSums[N] - Math.max(Math.max(partialSums[p1], midSum), rightSum)); 
 			}
-			//System.out.println(Arrays.toString(transistors));
-			double answer = (double) maxTransistors / partialSums[N-1];
-			fw.append(String.format("Case #%d: %.10f\n", init, answer));
+			double answer = (double) best / partialSums[N];
+			System.out.println(answer);
+			//fw.append(String.format("Case #%d: %.10f\n", init, answer));
 		}
 		
 		fw.close();
