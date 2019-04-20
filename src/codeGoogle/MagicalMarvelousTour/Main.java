@@ -16,7 +16,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		
 		String path = "src/codeGoogle/MagicalMarvelousTour/";
-		BufferedReader br = new BufferedReader(new FileReader(path + "A-small-practice.in"));
+		BufferedReader br = new BufferedReader(new FileReader(path + "A-large-practice.in"));
 		FileWriter fw = new FileWriter(path + "solution.txt");
 		
 		int T = Integer.parseInt(br.readLine());
@@ -24,19 +24,22 @@ public class Main {
 		for (int init = 1; init <= T; init++) {
 			String[] lineInSplit = br.readLine().split(" ");
 			
+			if (init != 53)
+				continue;
+			
 			int N = Integer.parseInt(lineInSplit[0]);
 			int p = Integer.parseInt(lineInSplit[1]);
 			int q = Integer.parseInt(lineInSplit[2]);
 			int r = Integer.parseInt(lineInSplit[3]);
 			int s = Integer.parseInt(lineInSplit[4]);
 			
-			long[] transistors1 = new long[N];
+			long[] transistors = new long[N];
 			for (int j = 0; j < N; j++) {
-				transistors1[j] = ((j * p + q) % r + s);
+				transistors[j] = ((j * p + q) % r + s);
 			}
-			
-			N = 4;
-			long[] transistors = {1, 2, 2, 1};
+//			
+//			N = 4;
+//			long[] transistors = {1, 2, 2, 1};
 			// start of code
 			
 			long[] partialSums = new long[N+1];
@@ -56,21 +59,28 @@ public class Main {
 					midSum = partialSums[pointer] - partialSums[p1];
 					rightSum = partialSums[N] - partialSums[pointer];
 					
-					if (midSum < rightSum) {
-						right = pointer - 1;
-					} else if (midSum > rightSum) {
-						left = pointer + 1;
+					best = Math.max(best, partialSums[N] - Math.max(Math.max(partialSums[p1], midSum), rightSum));
+					System.out.printf("1st: %d, %d, %d | %d, %d, %d\n", left, right, pointer, partialSums[p1], midSum, rightSum);
+					
+					if (midSum > rightSum) {
+						if (right == pointer) break;
+						right = pointer;
+					} else if (midSum < rightSum) {
+						if (left == pointer) break;
+						left = pointer;
 					} else {
 						break;
 					}
-					//System.out.printf("%d, %d, %d, %d\n", left, right, midSum, rightSum);
+					
+					System.out.printf("2nd: %d, %d, %d | %d, %d, %d\n", left, right, pointer, partialSums[p1], midSum, rightSum);
 				}
 				
-				best = Math.max(best, partialSums[N] - Math.max(Math.max(partialSums[p1], midSum), rightSum)); 
+				System.out.printf("final: %d, %d, %d | %d, %d, %d\n", left, right, pointer, partialSums[p1], midSum, rightSum);
+				System.out.println("===");
 			}
 			double answer = (double) best / partialSums[N];
-			System.out.println(answer);
-			//fw.append(String.format("Case #%d: %.10f\n", init, answer));
+//			System.out.println(answer);
+			fw.append(String.format("Case #%d: %.10f\n", init, answer));
 		}
 		
 		fw.close();
