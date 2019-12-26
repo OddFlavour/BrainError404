@@ -1,4 +1,4 @@
-package year2017.qualification.a;
+package codeGoogle.year2017.qualification.a;
 
 import java.io.BufferedReader;
 import java.io.File;

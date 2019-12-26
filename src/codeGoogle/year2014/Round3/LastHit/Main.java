@@ -1,4 +1,4 @@
-package codeGoogle.LastHit;
+package codeGoogle.year2014.Round3.LastHit;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

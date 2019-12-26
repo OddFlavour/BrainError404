@@ -1,4 +1,4 @@
-package codeGoogle.MagicalMarvelousTour;
+package codeGoogle.year2014.Round3.MagicalMarvelousTour;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
