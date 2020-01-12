@@ -16,13 +16,14 @@ def insert(into, _with):
         into.insert(0, _with)
 
 
-file = open("C-small-practice-2.in", "r")
+file = open("C-small-practice-1.in", "r")
 
 T = int(file.readline())
 
 for case in range(0, T):
     (N, K) = [int(x) for x in file.readline().split(" ")]
 
+    # Includes the two guards at the ends
     stack = [(0, N + 1)]
 
     for i in range(0, K - 1):
