@@ -1,4 +1,4 @@
-package leetCode;
+package leetCode.challenge30Day.week2;
 
 public class DiameterOfBinaryTree {
 
