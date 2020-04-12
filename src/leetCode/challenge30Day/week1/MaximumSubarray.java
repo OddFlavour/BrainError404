@@ -25,8 +25,28 @@ public class MaximumSubarray {
         int currSum = nums[0];
 
         for (int i = 1; i < nums.length; i++) {
-            currSum = Math.max(currSum + nums[i], nums[i]);
+            currSum += nums[i];
+            currSum = Math.max(currSum, nums[i]);
             max = Math.max(currSum, max);
+        }
+
+        return max;
+    }
+
+    public int maxSubArrayNotMathMax(int[] nums) {
+        int max = nums[0];
+        int currSum = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            currSum += nums[i];
+
+            if (currSum < nums[i]) {
+                currSum = nums[i];
+            }
+
+            if (max < currSum) {
+                max = currSum;
+            }
         }
 
         return max;
