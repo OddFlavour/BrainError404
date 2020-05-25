@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class TreeTools {
-    class TreeNode {
-        int val;
-        TreeNode left;
-        TreeNode right;
+    public static class TreeNode {
+        public int val;
+        public TreeNode left;
+        public TreeNode right;
 
         TreeNode() {
         }
@@ -23,7 +23,7 @@ public class TreeTools {
         }
     }
 
-    private TreeNode convertToTree(Integer[] list) {
+    public static TreeNode convertToTree(Integer[] list) {
         if (list.length == 0) return null;
 
         int index = 0;
