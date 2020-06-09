@@ -2,33 +2,54 @@ package leetCode.mayLeetCodingChallenge.week4;
 
 public class CountingBits {
     public int[] countBits(int num) {
-        int digits = Math.max(0, (int) (Math.log(num) / Math.log(2))) + 1;
-
-        int[] fragments = new int[digits];
         int[] ans = new int[num + 1];
 
-        int count = 0;
-        for (int i = 1; i <= num; i++) {
-            int ind = 0;
-            while (fragments[ind] == 1) {
-                fragments[ind++] = 0;
-                count--;
-            }
-            fragments[ind] = 1;
-            count++;
+        int limit = 1;
+        int i = 1;
 
-            ans[i] = count;
+        while (i <= num) {
+            if (i == limit) {
+                ans[i] = 1;
+                limit *= 2;
+            } else {
+                int offset = limit / 2;
+                ans[i] = ans[offset] + ans[i - offset];
+            }
+
+            i++;
         }
 
         return ans;
     }
 
-    public static void main(String[] args) {
-        CountingBits s = new CountingBits();
-        int[] ans = s.countBits(1);
+    public int[] countBitsBestSolution(int num) {
+        int[] f = new int[num + 1];
 
-        for (int i : ans) {
-            System.out.printf("%d ", i);
+        /**
+         * the total number of 1 bits =
+         * the number of the prefix 1 bits(exclude the last bit) + the last bit is 1 ? 1 : 0
+         */
+        for (int i = 1; i <= num; i++) {
+            // P(x)=P(x/2)+(xmod2)
+            // x / 2 is x >> 1 and x % 2 is x & 1
+            f[i] = f[i >> 1] + (i & 1);
         }
+        return f;
+    }
+
+    public static void main(String[] args) {
+        int num = 100000000;
+        CountingBits s = new CountingBits();
+
+        long start1 = System.currentTimeMillis();
+        s.countBits(num);
+        long end1 = System.currentTimeMillis();
+
+        long start2 = System.currentTimeMillis();
+        s.countBitsBestSolution(num);
+        long end2 = System.currentTimeMillis();
+
+        System.out.println(end1 - start1);
+        System.out.println(end2 - start2);
     }
 }
