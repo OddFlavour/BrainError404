@@ -3,6 +3,42 @@ package leetCode.random;
 import java.util.Arrays;
 
 public class LongestPalindrome {
+    class FastestSolution {
+        int starti = 0;
+        int endi = 0;
+        public String longestPalindrome(String s) {
+            char[] c = s.toCharArray();
+            int i = 0;
+            while (i < c.length) {
+                i = search(i, c);
+            }
+
+            return s.substring(starti, endi);
+        }
+
+        public int search(int i, char[] c) {
+            int s = i + 1;
+            while (s < c.length && c[i] == c[s]) {
+                s++;
+            }
+
+            int end = s;
+            int ss = i - 1;
+
+            while (ss >= 0 && end < c.length && c[ss] == c[end]) {
+                ss --;
+                end ++;
+            }
+
+            if (endi - starti < end - ss - 1) {
+                endi = end;
+                starti = ss + 1;
+            }
+
+            return  s;
+        }
+    }
+
     int lo, maxLen;
 
     public String longestPalindrome(String s) {
@@ -32,7 +68,7 @@ public class LongestPalindrome {
             maxLen = right - lo;
         }
     }
-    
+
     public String findLongestPalindrome(String s) {
         if (s==null || s.length()==0)
             return "";
@@ -41,7 +77,7 @@ public class LongestPalindrome {
         int[] p = new int[s2.length];
         int c = 0, r = 0; // Here the first element in s2 has been processed.
         int m = 0, n = 0; // The walking indices to compare if two elements are the same.
-        for (int i = 1; i<s2.length; i++) {
+        for (int i = 1; i<s2.length; i++) {  // i = 0 or 1 doesn't matter where it starts, i = 0 is redundant
             // This would be case 3
             // This would be palindrome #4, where there could exist a palindrome beyond 'r'
             if (i>r) {
