@@ -6,30 +6,29 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public class KClosestPointsToOrigin {
-    class Node {
-        int[] point;
-        int value;
-
-        public Node(int[] point) {
-            this.point = point;
-            this.value = point[0] * point[0] + point[1] * point[1];
-        }
+    private int getDistance(int [] point) {
+        return point[0] * point[0] + point[1] * point[1];
     }
 
     public int[][] kClosest(int[][] points, int K) {
         List<int[]> answer = new ArrayList<>();
 
-        PriorityQueue<int[][]> pq = new PriorityQueue<>(Comparator.comparingInt(o -> o[0][0]));
-        for (int[] p : points) {
-            int[][] toAdd = new int[2][2];
-            toAdd[0][0] = p[0] * p[0] + p[1] * p[1];
-            toAdd[1] = p;
+        PriorityQueue<int[]> pq = new PriorityQueue<>(new Comparator<int[]>() {
+            @Override
+            public int compare(int[] left, int[] right) {
+                return getDistance(right) - getDistance(left);
+            }
+        });
 
-            pq.add(toAdd);
+        for (int[] p : points) {
+            pq.add(p);
+
+            // Ensure 'pq' does not contain extraneous elements
+            if (pq.size() > K) pq.poll();
         }
 
         while (K > 0) {
-            answer.add(pq.poll()[1]);
+            answer.add(pq.poll());
             K--;
         }
 
