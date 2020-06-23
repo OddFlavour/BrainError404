@@ -54,4 +54,17 @@ public class TreeTools {
 
         return root;
     }
+
+    public static void printInorder(TreeNode root) {
+        printInorderHelper(root);
+        System.out.println();
+    }
+
+    private static void printInorderHelper(TreeNode root) {
+        if (root == null) return;
+
+        printInorderHelper(root.left);
+        System.out.print(root.val + ", ");
+        printInorderHelper(root.right);
+    }
 }
