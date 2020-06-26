@@ -13,6 +13,16 @@ public class CoinChange2 {
         multiple times because they can come in in different orders. By letting the coins to be the outer loops,
         one assures that for any valid combination, the order of each coin will always be the same as their
         order in coins, so there can be no duplicates."
+
+        As an example, say we have coins [1, 2, 5] and we are now processing coin of value 2 wanting a sum of 4
+
+        Since we want a sum of 4, we want to know what combinations there are to get to our complement (2).
+        The combinations that would exist would be '1, 1' and '2'. So we'd just add '2' to them to make:
+        - '1, 1, 2'
+        - '2, 2'
+
+        Therefore by processing this way, we are processing strictly combinations because we won't be using the coin
+        of value 1 again and as well as coin of value 2 after we are done with it.
          */
 
         // To speed up further, replace for-each with regular for
