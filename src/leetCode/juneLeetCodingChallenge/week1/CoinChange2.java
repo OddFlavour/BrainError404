@@ -1,42 +1,29 @@
 package leetCode.juneLeetCodingChallenge.week1;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CoinChange2 {
     public int change(int amount, int[] coins) {
+        int[] dp = new int[amount + 1];
+        dp[0] = 1;
+
         /*
-        In order to avoid duplicates, the coins used should be sorted in order (perhaps largest to smallest)
-
-        For example, there are two ways to make up '3' with the coins '{1, 2}'
-        - [1, 2]
-        - [2, 1]
-
-        To sort it in order, we'd need to keep track of what coins were used?
-        No, we just have to keep track of the largest element (X)
+        Explanation from 'albertaiq'
+        "I think one thing you didn't explain is that why the outer loop is the coins, not the amount.
+        The reason behind that is that as you mentioned, the problem is to find the total number of combinations,
+        not the permutations. If the outer loop is the amount, then the same combination will be counted
+        multiple times because they can come in in different orders. By letting the coins to be the outer loops,
+        one assures that for any valid combination, the order of each coin will always be the same as their
+        order in coins, so there can be no duplicates."
          */
 
-        // We need a list for each possible sum to keep track of the X
-        List<Integer>[] sums = new ArrayList[amount + 1];
-        for (int i = 0; i < sums.length; i++) sums[i] = new ArrayList<>();
-        sums[0].add(0);
-
-        for (int i = 1; i <= amount; i++) {
-            for (int c : coins) {
-                int result = i - c;
-                if (result >= 0) {
-                    // Here we will need to use a cached result from before
-                    // But we must make sure to follow how it's sorted
-                    for (int cached : sums[result]) {
-                        if (cached <= c) {
-                            sums[i].add(c);
-                        }
-                    }
-                }
+        // To speed up further, replace for-each with regular for
+        for (int c : coins) {
+            // We can set 'i = c' here to avoid accounting for 'i - c < 0'
+            for (int i = c; i <= amount; i++) {
+                    dp[i] += dp[i - c];
             }
         }
 
-        return sums[amount].size();
+        return dp[amount];
     }
 
     public static void main(String[] args) {
@@ -44,12 +31,16 @@ public class CoinChange2 {
                 5,
                 0,
                 0,
+                8,
+                500
         };
 
         int[][] testCoins = {
                 {1, 2, 5},
                 {1, 2, 5},
-                {}
+                {},
+                {2, 4},
+                {3, 5, 7, 8, 9, 10, 11}
         };
 
         for (int i = 0; i < testAmounts.length; i++) {
