@@ -17,7 +17,8 @@ public class FindTheDuplicateNumber {
             i2 = nums[i2];
         }
 
-        return nums[i1];
+        // Return i1 here because the duplicate is found
+        return i1;
     }
 
     public static void main(String[] args) {
