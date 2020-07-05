@@ -1,21 +1,18 @@
 package leetCode.juneLeetCodingChallenge.week2;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 
 // Read on Bellman-Ford algorithm
 public class CheapestFlightsWithinKStops {
-    class Solution {
-        public int findCheapestPrice(int n, int[][] flights, int src, int dst, int K) {
+    static class Solution {
+        public int findCheapestPriceDijkstra(int n, int[][] flights, int src, int dst, int K) {
             Map<Integer, Map<Integer, Integer>> prices = new HashMap<>();
             for (int[] f : flights) {
                 if (!prices.containsKey(f[0])) prices.put(f[0], new HashMap<>());
                 prices.get(f[0]).put(f[1], f[2]);
             }
             Queue<int[]> pq = new PriorityQueue<>((a, b) -> (Integer.compare(a[0], b[0])));
-            pq.add(new int[] {0, src, K + 1});
+            pq.add(new int[]{0, src, K + 1});
             while (!pq.isEmpty()) {
                 int[] top = pq.remove();
                 int price = top[0];
@@ -25,15 +22,52 @@ public class CheapestFlightsWithinKStops {
                 if (stops > 0) {
                     Map<Integer, Integer> adj = prices.getOrDefault(city, new HashMap<>());
                     for (int a : adj.keySet()) {
-                        pq.add(new int[] {price + adj.get(a), a, stops - 1});
+                        pq.add(new int[]{price + adj.get(a), a, stops - 1});
                     }
                 }
             }
             return -1;
         }
+
+        public int findCheapestPriceBellmanFord(int n, int[][] flights, int src, int dst, int K) {
+            if (flights == null || flights.length == 0 || src == dst) {
+                return (src == dst ? 0 : -1);
+            }
+
+            // Bellman-Ford:
+            int[] paths = new int[n];
+            Arrays.fill(paths, Integer.MAX_VALUE);
+            paths[src] = 0; // INITIAL
+
+            // To mimic K stops we need to modifications:
+            // (1) Instead of iterating [0,...,V-1], we do [0,...K] iterations
+            // (2) Must make deep copy of paths[] before updating to mimic a single hop
+            for (int step = 0; step <= K; step++) {
+                bellmanFord(paths, flights);
+            }
+
+            return (paths[dst] == Integer.MAX_VALUE) ? -1 : paths[dst];
+        }
+
+        public void bellmanFord(int[] paths, int[][] flights) {
+            // Deep Copy of current paths: This is to mimic a "single hop"
+            int[] pathsCopy = paths.clone();
+
+            // Bellman Ford
+            for (int[] edge : flights) {
+                int src = edge[0];
+                int dst = edge[1];
+                int cost = edge[2];
+
+                if (pathsCopy[src] == Integer.MAX_VALUE) {
+                    continue; // skip unreachable nodes
+                }
+                paths[dst] = Math.min(paths[dst], pathsCopy[src] + cost);
+            }
+        }
     }
 
-    int ans = -1;
+    int ans = Integer.MAX_VALUE;
     int src, dst, K;
 
     final int _COST = 0;
@@ -47,7 +81,33 @@ public class CheapestFlightsWithinKStops {
 
         rec(flights, src, 0, 0, new boolean[n]);
 
-        return ans;
+        return ans == Integer.MAX_VALUE ? -1 : ans;
+    }
+
+    private boolean rec(int[][] flights, int curr, int totalCost, int count, boolean[] seen) {
+        if (totalCost > ans) return false;
+        if (curr == dst) {
+            if (count <= K + 1) {
+                ans = Math.min(ans, totalCost);
+            }
+            return true;
+        }
+
+        seen[curr] = true;
+
+        boolean possible = false;
+        for (int[] f : flights) {
+            // If it is a flight out of 'curr'
+            if (f[0] == curr && !seen[f[1]]) {
+                // And taking this flight has a chance to get to 'dst'
+                if (rec(flights, f[1], totalCost + f[2], count + 1, seen)) {
+                    possible = true;
+                }
+            }
+        }
+        seen[curr] = false;
+
+        return possible;
     }
 
     public int findCheapestPrice(int n, int[][] flights, int src, int dst, int K) {
@@ -152,36 +212,61 @@ public class CheapestFlightsWithinKStops {
         }
     }
 
-    private boolean rec(int[][] flights, int curr, int totalCost, int count, boolean[] seen) {
+    public int findCheapestPriceBFS(int n, int[][] flights, int src, int dst, int K) {
+        int ans = Integer.MAX_VALUE;
+
+        // [cost, remaining K]
+        Queue<int[]> q = new LinkedList<>();
+        q.add(new int[]{0, src});
+
+        int depth = 0;
+        while (!q.isEmpty() && depth <= K + 1) {
+            int size = q.size();
+
+            for (int i = 0; i < size; i++) {
+                int[] curr = q.poll();
+                int cost = curr[0];
+                int city = curr[1];
+
+                if (city == dst) {
+                    ans = Math.min(ans, cost);
+                }
+
+                for (int[] f : flights) {
+                    if (f[0] == city) {
+                        if (cost + f[2] >= ans) continue;
+                        q.offer(new int[]{cost + f[2], f[1]});
+                    }
+                }
+            }
+
+            depth++;
+        }
+
+        return ans == Integer.MAX_VALUE ? -1 : ans;
+    }
+
+    public int findCheapestPriceDFS(int n, int[][] flights, int src, int dst, int K) {
+        ans = Integer.MAX_VALUE;
+
+        dfs(flights, src, dst, 0, K + 1);
+
+        return ans == Integer.MAX_VALUE ? -1 : ans;
+    }
+
+    private void dfs(int[][] flights, int curr, int dst, int totalCost, int limit) {
         if (curr == dst) {
-            if (count <= K + 1) {
-                if (ans == -1) {
-                    ans = totalCost;
-                } else {
-                    ans = Math.min(ans, totalCost);
-                }
-            }
-//            System.out.printf("%d, %d\n", count, totalCost);
-            return true;
+            ans = Math.min(ans, totalCost);
+            return;
         }
+        if (limit == 0) return;
 
-        seen[curr] = true;
-
-        boolean possible = false;
         for (int[] f : flights) {
-            // If it is a flight out of 'curr'
-            if (f[0] == curr && !seen[f[1]]) {
-                // And taking this flight has a chance to get to 'dst'
-                if (rec(flights, f[1], totalCost + f[2], count + 1, seen)) {
-                    possible = true;
-                }
+            if (f[0] == curr) {
+                if (totalCost + f[2] >= ans) continue;
+                dfs(flights, f[1], dst, totalCost + f[2], limit - 1);
             }
         }
-        // If it is not possible, then we'll mark it as seen permanently
-//        seen[curr] = !possible;
-        seen[curr] = false;
-
-        return possible;
     }
 
     public static void main(String[] args) {
@@ -196,7 +281,8 @@ public class CheapestFlightsWithinKStops {
                 10,
                 5,
                 5,
-                4
+                4,
+                3
         };
 
         int[][][] testEdges = {
@@ -210,7 +296,8 @@ public class CheapestFlightsWithinKStops {
                 {{3, 4, 4}, {2, 5, 6}, {4, 7, 10}, {9, 6, 5}, {7, 4, 4}, {6, 2, 10}, {6, 8, 6}, {7, 9, 4}, {1, 5, 4}, {1, 0, 4}, {9, 7, 3}, {7, 0, 5}, {6, 5, 8}, {1, 7, 6}, {4, 0, 9}, {5, 9, 1}, {8, 7, 3}, {1, 2, 6}, {4, 1, 5}, {5, 2, 4}, {1, 9, 1}, {7, 8, 10}, {0, 4, 2}, {7, 2, 8}},
                 {{0, 1, 5}, {1, 2, 5}, {0, 3, 2}, {3, 1, 2}, {1, 4, 1}, {4, 2, 1}},
                 {{0, 1, 1}, {0, 2, 10}, {1, 2, 1}, {2, 3, 1}, {3, 4, 1}},
-                {{1, 0, 1}, {2, 0, 5}, {2, 1, 1}, {3, 2, 1}}
+                {{1, 0, 1}, {2, 0, 5}, {2, 1, 1}, {3, 2, 1}},
+                {{0, 1, 1}, {1, 0, 1}}
         };
 
         int[] testSrcs = {
@@ -224,7 +311,8 @@ public class CheapestFlightsWithinKStops {
                 6,
                 0,
                 0,
-                3
+                3,
+                0
         };
 
         int[] testDsts = {
@@ -238,7 +326,8 @@ public class CheapestFlightsWithinKStops {
                 0,
                 2,
                 4,
-                0
+                0,
+                2
         };
 
         int[] testKs = {
@@ -252,14 +341,16 @@ public class CheapestFlightsWithinKStops {
                 7,
                 2,
                 2,
-                1
+                1,
+                10
         };
 
         for (int i = 0; i < testNs.length; i++) {
             CheapestFlightsWithinKStops s = new CheapestFlightsWithinKStops();
             System.out.println(
-                    s.findCheapestPrice(testNs[i], testEdges[i], testSrcs[i], testDsts[i], testKs[i])
-                            == s.findCheapestPrice2(testNs[i], testEdges[i], testSrcs[i], testDsts[i], testKs[i])
+                    s.findCheapestPriceDFS(testNs[i], testEdges[i], testSrcs[i], testDsts[i], testKs[i])
+                            ==
+                    s.findCheapestPriceBFS(testNs[i], testEdges[i], testSrcs[i], testDsts[i], testKs[i])
             );
         }
     }
