@@ -48,11 +48,19 @@ public class DungeonGame {
         int[][] dp = new int[m][n];
         dp[m - 1][n - 1] = Math.min(0, dungeon[m - 1][n - 1]);
 
-        for (int row = m - 1; row >= 0; row--) {
-            for (int col = n - 1; col >= 0; col--) {
-                if (row == m - 1 && col == n - 1) continue;
+        // Last col
+        for (int x = m - 2; x >= 0; x--) {
+            dp[x][n - 1] = Math.min(0, dp[x + 1][n - 1] + dungeon[x][n - 1]);
+        }
 
-                int down = row + 1 < m ? dp[row + 1][col] : -Integer.MAX_VALUE, right = col + 1 < n ? dp[row][col + 1] : -Integer.MAX_VALUE;
+        // Last row
+        for (int x = n - 2; x >= 0; x--) {
+            dp[m - 1][x] = Math.min(0, dp[m - 1][x + 1] + dungeon[m - 1][x]);
+        }
+
+        for (int row = m - 2; row >= 0; row--) {
+            for (int col = n - 2; col >= 0; col--) {
+                int down = dp[row + 1][col], right = dp[row][col + 1];
 
                 dp[row][col] = Math.min(0, Math.max(down, right) + dungeon[row][col]);
             }
