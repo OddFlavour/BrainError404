@@ -16,6 +16,11 @@ public class PrisonCellsAfterNDays {
             if (memoryMap.containsKey(cellsToStr)) {
                 int last = memoryMap.get(cellsToStr);
                 int diff = i - last;
+
+                /*
+                why not (N - i - 1)? Because we are doing this memory check in the beginning, which would mean, we
+                are actually about to process the next day. Therefore we need to account for this by removing '-1'
+                 */
                 int modulo = (N - i) % diff;
 
                 return toArray(memory.get(modulo + last));
@@ -64,12 +69,14 @@ public class PrisonCellsAfterNDays {
     public static void main(String[] args) {
         int[][] testCells = {
                 {0, 1, 0, 1, 1, 0, 0, 1},
-                {1,0,0,1,0,0,1,0}
+                {1,0,0,1,0,0,1,0},
+                {0, 0, 0, 0}
         };
 
         int[] testNs = {
                 7,
-                1000000000
+                1000000000,
+                5
         };
 
         for (int i = 0; i < testCells.length; i++) {
